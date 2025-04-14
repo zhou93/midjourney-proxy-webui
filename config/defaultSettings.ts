@@ -15,7 +15,7 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: 'Midjourney Proxy Admin',
+  title: 'Midjourney Proxy',
   pwa: true,
   logo: './logo.svg',
   iconfontUrl: '',

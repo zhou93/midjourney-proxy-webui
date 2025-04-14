@@ -1,5 +1,5 @@
 export default {
-  'pages.layouts.userLayout.title': '用于维护账号、绘图测试、查看日志等。',
+  'pages.layouts.userLayout.title': '用于代理绘图。',
   'pages.login.accountLogin.tab': '账户密码登录',
   'pages.login.accountLogin.errorMessage': '错误的用户名和密码(admin/ant.design)',
   'pages.login.failure': '登录失败，请重试！',
@@ -26,7 +26,8 @@ export default {
   'pages.login.email.required': '邮箱是必填项！',
   'pages.login.register': '注册',
   'pages.login.returnLogin': '返回登录',
-  'pages.login.registerSuccess': '注册成功！',
+  'pages.login.registerSuccess': '注册成功，请查阅邮件获取密码！',
+  'pages.register.email.placeholder': '请输入邮箱',
 
   'pages.welcome.todayDraw': '今日绘图',
   'pages.welcome.yesterdayDraw': '昨日绘图',
@@ -36,7 +37,7 @@ export default {
 
 
   'pages.welcome.link': '欢迎使用',
-  'pages.welcome.description': 'Midjourney Proxy Admin 是一个 Midjourney Proxy 后台管理界面。致力于提供各种管理功能。',
+  'pages.welcome.description': 'Midjourney Proxy 是一个代理 MidJourney 的 discord 频道的开源项目，实现 api 形式调用 AI 绘图。',
   'pages.welcome.learn': '了解',
   'pages.welcome.midjourney-proxy': 'midjourney-proxy 是一个代理 MidJourney 的 discord 频道的开源项目，实现 api 形式调用 AI 绘图。',
   'pages.welcome.go-amz-ai': 'GoAmzAI 🤖️ 基于 Golang + Vue3 + NaiveUI 的全新的个人、团队、企业私有化AIGC平台',
@@ -307,6 +308,13 @@ export default {
   'pages.draw.inputIdShow': '输入任务ID, 调出未展示的任务',
   'pages.draw.inputJobIdShow': '输入 job id 或 url, 将 midjourney 任务转为本系统任务',
   'pages.draw.submitTask': '提交任务',
+  'pages.draw.speedMode.default': '默认速度',
+  'pages.draw.speedMode.fast': 'fast模式',
+  'pages.draw.speedMode.turbo': 'turbo模式',
+  'pages.draw.speedMode.relax': 'relax模式',
+  'pages.draw.speedMode.noRestriction': '当前账号未限制生成速度',
+  'pages.draw.speedMode.selectAccount': '请先选择账号',
+  'pages.draw.speedMode.notAllowed': '当前账号不支持该速度模式',
   'pages.draw.PORTRAIT': '肖像(2:3)',
   'pages.draw.SQUARE': '正方形(1:1)',
   'pages.draw.LANDSCAPE': '景观(3:2)',

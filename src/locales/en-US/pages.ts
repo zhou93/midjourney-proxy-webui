@@ -1,6 +1,6 @@
 export default {
   'pages.layouts.userLayout.title':
-    'Used for maintaining accounts, conducting drawing tests, viewing logs, etc.',
+    'Used for drawing tests.',
   'pages.login.accountLogin.tab': 'Account Login',
   'pages.login.accountLogin.errorMessage': 'Incorrect username/password(admin/ant.design)',
   'pages.login.failure': 'Login failed, please try again!',
@@ -27,7 +27,7 @@ export default {
   'pages.login.email.required': 'Please input your email!',
   'pages.login.register': 'Register',
   'pages.login.returnLogin': 'Return to login',
-  'pages.login.registerSuccess': 'Register successful!',
+  'pages.login.registerSuccess': 'Register successful. Please check your email to get your password.',
 
   'pages.welcome.todayDraw': 'Today Draw',
   'pages.welcome.yesterdayDraw': 'Yesterday Draw',
@@ -37,7 +37,7 @@ export default {
 
   'pages.welcome.link': 'Welcome to',
   'pages.welcome.description':
-    'Midjourney Proxy Admin is a backend management interface for Midjourney Proxy, dedicated to providing various administrative functions.',
+    'Midjourney Proxy is an open-source project that proxies the MidJourney discord channel, implementing AI drawing calls in API form.',
   'pages.welcome.learn': 'About',
   'pages.welcome.learnMore': 'About More',
   'pages.welcome.midjourney-proxy':
@@ -335,6 +335,13 @@ export default {
   'pages.draw.onlyJpgPng': 'You can only upload JPG or PNG or MP4 files!',
   'pages.draw.limit10M': 'The image cannot be larger than 10MB!',
   'pages.draw.selectAccount': 'Assigned account drawing',
+  'pages.draw.speedMode.default': 'Default Speed',
+  'pages.draw.speedMode.fast': 'Fast Mode',
+  'pages.draw.speedMode.turbo': 'Turbo Mode',
+  'pages.draw.speedMode.relax': 'Relax Mode',
+  'pages.draw.speedMode.noRestriction': 'No speed restriction for current account',
+  'pages.draw.speedMode.selectAccount': 'Please select an account first',
+  'pages.draw.speedMode.notAllowed': 'Current account does not support this speed mode',
 
   'pages.activate.actived': 'Service has been activated',
   'pages.activate.activedTip':

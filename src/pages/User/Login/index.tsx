@@ -54,7 +54,13 @@ const Login: React.FC = () => {
   // register
   const onRegister = () => {
     if (!mail) {
-      message.error('Please input email');
+      message.error('请输入邮箱');
+      return;
+    }
+    
+    // 验证邮箱后缀必须是 @yottastudios.com
+    if (!mail.endsWith('@yottastudios.com')) {
+      message.error('只允许使用 @yottastudios.com 后缀的邮箱注册');
       return;
     }
 
@@ -188,7 +194,7 @@ const Login: React.FC = () => {
               maxWidth: '75vw',
               height: 'auto',
             }}
-            title="Midjourney Proxy Admin"
+            title="Midjourney Proxy"
             subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}
             initialValues={{
               autoLogin: true,

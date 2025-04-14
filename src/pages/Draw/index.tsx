@@ -29,6 +29,8 @@ import {
   Spin,
   Tag,
   Upload,
+  Form,
+  Tooltip,
 } from 'antd';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import React, { useEffect, useRef, useState } from 'react';
@@ -37,6 +39,12 @@ import styles from './index.less';
 
 const { TextArea } = Input;
 const { Meta } = Card;
+
+interface Account {
+  channelId: string;
+  allowModes?: string[];
+  [key: string]: any;
+}
 
 const Draw: React.FC = () => {
   const [api, contextHolder] = notification.useNotification();
@@ -48,6 +56,8 @@ const Draw: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [dimensions, setDimensions] = useState('SQUARE');
   const [images, setImages] = useState<UploadFile[]>([]);
+  const [speedMode, setSpeedMode] = useState<string>('relax');
+  const [allowModes, setAllowModes] = useState<string[]>([]);
 
   const [swapImages1, setSwapImages1] = useState<UploadFile[]>([]);
   const [swapImages2, setSwapImages2] = useState<UploadFile[]>([]);
@@ -65,8 +75,9 @@ const Draw: React.FC = () => {
   const [modalRemix, setModalRemix] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
 
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [curAccount, setCurAccount] = useState<string>();
+  const [selectedAccount, setSelectedAccount] = useState<string>('');
 
   const intl = useIntl();
 
@@ -172,7 +183,12 @@ const Draw: React.FC = () => {
   };
 
   const handleAccountChange = (value: string) => {
-    setCurAccount(value);
+    setSelectedAccount(value);
+    const account = accounts.find(acc => acc.channelId === value);
+    if (account) {
+      const modes = account.allowModes || [];
+      setAllowModes(modes);
+    }
   };
 
   const handleBotTypeChange = ({ target: { value } }: RadioChangeEvent) => {
@@ -193,6 +209,15 @@ const Draw: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setCustomPrompt(e.target.value);
+  };
+
+  const handleSpeedModeChange = (value: string) => {
+    if (allowModes.length > 0 && value !== 'default' && !allowModes.includes(value)) {
+      message.warning(intl.formatMessage({ id: 'pages.draw.speedMode.notAllowed' }));
+      return;
+    }
+    
+    setSpeedMode(value);
   };
 
   const readFileAsBase64 = async (file: any) => {
@@ -359,9 +384,16 @@ const Draw: React.FC = () => {
         const base64 = await readFileAsBase64(item.originFileObj);
         base64Array.push(base64);
       }
+      let finalPrompt = prompt;
+      finalPrompt = finalPrompt.replace(/\s*(--fast|--turbo|--relax)\s*/g, ' ').trim();
+      if (!speedMode) {
+        finalPrompt = `${finalPrompt} --relax`;
+      } else {
+        finalPrompt = `${finalPrompt} --${speedMode}`;
+      }
       submitTask(action, {
         botType,
-        prompt,
+        prompt: finalPrompt,
         base64Array,
         state: customState,
         accountFilter: {
@@ -1163,12 +1195,14 @@ const Draw: React.FC = () => {
         />
 
         <Select
-          value={curAccount}
-          style={{ width: 320 }}
-          onChange={handleAccountChange}
-          options={accountOpts}
-          allowClear
-          placeholder={intl.formatMessage({ id: 'pages.draw.selectAccount' })}
+          value={speedMode}
+          onChange={handleSpeedModeChange}
+          style={{ width: 120 }}
+          options={[
+            { label: intl.formatMessage({ id: 'pages.draw.speedMode.relax' }), value: 'relax' },
+            { label: intl.formatMessage({ id: 'pages.draw.speedMode.fast' }), value: 'fast' },
+            { label: intl.formatMessage({ id: 'pages.draw.speedMode.turbo' }), value: 'turbo' }
+          ]}
         />
 
         <Radio.Group
@@ -1177,11 +1211,20 @@ const Draw: React.FC = () => {
           options={[
             { value: 'MID_JOURNEY', label: 'Midjourney' },
             { value: 'NIJI_JOURNEY', label: 'niji・journey' },
-            // { value: 'INSIGHT_FACE', label: 'InsightFace' },
             { value: 'FACE_SWAP', label: 'FaceSwap' },
             { value: 'VIDEO_FACE_SWAP', label: 'Video・FaceSwap' },
           ]}
           optionType="button"
+        />
+
+        {/* 隐藏账号选择下拉框 */}
+        <Select
+          value={selectedAccount}
+          style={{ width: 320, display: 'none' }}
+          onChange={handleAccountChange}
+          options={accountOpts}
+          allowClear
+          placeholder={intl.formatMessage({ id: 'pages.draw.selectAccount' })}
         />
       </Space>
     );

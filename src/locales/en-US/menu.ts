@@ -29,7 +29,7 @@ export default {
   'menu.list.user-list': 'User Manage',
   'menu.api-doc': 'API DOC',
   'menu.task-list': 'Task Search',
-  'menu.draw-test': 'Draw Test',
+  'menu.draw-test': 'Start Draw',
   'menu.setting': 'System Setting',
   'menu.probe': 'Log Probe',
   'menu.activate': 'System Activate',
