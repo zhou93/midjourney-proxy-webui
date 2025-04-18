@@ -8,7 +8,7 @@ import {
   swapFace,
   swapVideoFace,
 } from '@/services/mj/api';
-import { ClearOutlined, CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { ClearOutlined, CloseCircleOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { useIntl } from '@umijs/max';
 import type { RadioChangeEvent } from 'antd';
@@ -58,6 +58,7 @@ const Draw: React.FC = () => {
   const [images, setImages] = useState<UploadFile[]>([]);
   const [speedMode, setSpeedMode] = useState<string>('relax');
   const [allowModes, setAllowModes] = useState<string[]>([]);
+  const [enableTempRemixMode, setEnableTempRemixMode] = useState(false);
 
   const [swapImages1, setSwapImages1] = useState<UploadFile[]>([]);
   const [swapImages2, setSwapImages2] = useState<UploadFile[]>([]);
@@ -78,6 +79,8 @@ const Draw: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [curAccount, setCurAccount] = useState<string>();
   const [selectedAccount, setSelectedAccount] = useState<string>('');
+
+  const [remixModeTaskIds, setRemixModeTaskIds] = useState<{[key: string]: boolean}>({});
 
   const intl = useIntl();
 
@@ -161,7 +164,7 @@ const Draw: React.FC = () => {
     setDataLoading(true);
 
     const accs = await queryAccount();
-    setAccounts(accs);
+    setAccounts(accs as Account[]);
 
     const res = await queryTask(params);
     const array = res.list.reverse();
@@ -508,13 +511,23 @@ const Draw: React.FC = () => {
     const taskId = task.id;
     const label = `${button.emoji} ${button.label}`;
     setLoadingButton(`${taskId}:${customId}`);
+    
+    // 获取当前任务的Remix状态
+    const isRemixEnabled = remixModeTaskIds[taskId];
+    
+    // 简化逻辑，直接提交任务，将remix状态传递给后端
     submitTask('action', {
       taskId,
       customId,
       state: customState,
       chooseSameChannel: true,
+      accountFilter: {
+        // 参数代表用户是否希望以Remix模式执行该任务，而不仅是控制模态对话框
+        remix: isRemixEnabled
+      }
     }).then((res) => {
       setLoadingButton('');
+      
       if (res.code === 22) {
         api.warning({
           message: 'warn',
@@ -527,7 +540,10 @@ const Draw: React.FC = () => {
         setModalTitle(`${res.result} ${label}`);
         setCustomTaskId(res.result);
         setCustomPrompt(res.properties['finalPrompt']);
-        setModalRemix(res.properties['remix'] || false);
+        
+        // 保持当前Remix状态
+        setModalRemix(isRemixEnabled);
+        
         if (customId.startsWith('MJ::Inpaint:')) {
           const imgUrl = `${imagePrefix}${task.imageUrl}`;
           const img = new Image();
@@ -554,8 +570,6 @@ const Draw: React.FC = () => {
           taskIds.forEach((taskId: string) => {
             waitTaskIds.add(taskId);
           });
-
-          // waitTaskIds.add(res.result);
         }
         message.success(intl.formatMessage({ id: 'pages.draw.actionSuccess' }));
       } else {
@@ -564,6 +578,13 @@ const Draw: React.FC = () => {
           description: res.description,
         });
       }
+    }).catch((error) => {
+      setLoadingButton('');
+      
+      api.error({
+        message: 'error',
+        description: error.message || '操作失败',
+      });
     });
   };
 
@@ -608,9 +629,18 @@ const Draw: React.FC = () => {
       const newImg = new Image();
       newImg.src = canvas.toDataURL('image/png');
       const base64 = await getMaskBase64(newImg);
-      params = { maskBase64: base64, taskId: customTaskId, prompt: customPrompt };
+      params = { 
+        maskBase64: base64, 
+        taskId: customTaskId, 
+        prompt: customPrompt,
+        remix: modalRemix  // 添加remix参数
+      };
     } else {
-      params = { taskId: customTaskId, prompt: customPrompt };
+      params = { 
+        taskId: customTaskId, 
+        prompt: customPrompt,
+        remix: modalRemix  // 添加remix参数
+      };
     }
     submitTask('modal', params).then((res) => {
       setLoadingModal(false);
@@ -788,12 +818,17 @@ const Draw: React.FC = () => {
   const getTaskVideo = (imageUrl: string, width: number) => {
     if (!imageUrl) return <></>;
     return (
-      <video
-        width={width}
-        controls
-        src={imagePrefix + imageUrl}
-        placeholder={<Spin tip="Loading" size="large"></Spin>}
-      ></video>
+      <div>
+        <Spin tip="Loading" size="large">
+          <div style={{ minHeight: '100px' }}>
+            <video
+              width={width}
+              controls
+              src={imagePrefix + imageUrl}
+            ></video>
+          </div>
+        </Spin>
+      </div>
     );
   };
 
@@ -810,8 +845,17 @@ const Draw: React.FC = () => {
     );
   };
 
+  const toggleRemixMode = (taskId: string) => {
+    setRemixModeTaskIds(prev => {
+      const newState = {...prev};
+      newState[taskId] = !prev[taskId];
+      return newState;
+    });
+  };
+
   const actionButtons = (task: any) => {
-    return task.buttons.map((button: any) => {
+    // 处理普通操作按钮
+    const buttons = task.buttons.map((button: any) => {
       return (
         <Button
           ghost
@@ -826,6 +870,28 @@ const Draw: React.FC = () => {
         </Button>
       );
     });
+    
+    // 只有当按钮数组不为空时，才添加Remix按钮
+    if (task.buttons && task.buttons.length > 0) {
+      const remixButton = (
+        <Button
+          ghost
+          key={`${task.id}:remix-toggle`}
+          style={{ 
+            backgroundColor: remixModeTaskIds[task.id] ? '#258146' : 'rgb(131 133 142)'
+          }}
+          onClick={() => toggleRemixMode(task.id)}
+          icon={<span style={{ fontSize: '16px' }}>🎛️</span>}
+        >
+          Remix {remixModeTaskIds[task.id] ? '开' : '关'}
+        </Button>
+      );
+      
+      // 添加到按钮数组最后
+      buttons.push(remixButton);
+    }
+    
+    return buttons;
   };
 
   const uploadButton = (

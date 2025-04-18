@@ -451,3 +451,15 @@ export async function migrateAccountAndTasks(data: object, options?: { [key: str
     ...(options || {}),
   });
 }
+
+export async function toggleRemixMode(
+  id: string,
+  enable: boolean,
+  botType: string = 'MID_JOURNEY',
+  options?: { [key: string]: any },
+) {
+  return request<API.Result>(`/mj/admin/account-toggle-remix/${id}?enable=${enable}&botType=${botType}`, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}

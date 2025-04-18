@@ -146,7 +146,7 @@ export default {
   'pages.account.cfRefresh': '重新生成 CF 验证链接',
   'pages.account.cfok': '标记验证通过',
   'pages.account.mjVersionSuccess': 'mj版本切换成功',
-  'pages.account.remixAutoSubmit': 'Remix 自动提交',
+  'pages.account.remixAutoSubmit': 'Remix自动提交',
   'pages.account.enableFastToRelax': '自动切换慢速',
   'pages.account.enableFastToRelaxTips': '启用后，当快速模式用完后，自动切换到慢速模式',
   'pages.account.enableRelaxToFast': '自动切换快速',
@@ -456,4 +456,10 @@ export default {
 
   'pages.setting.cloudflareR2': 'Cloudflare R2',
   'pages.setting.cloudflareR2Tips': 'Cloudflare R2',
+
+  'pages.account.mjRemixMode': 'MJ Remix模式',
+  'pages.account.nijiRemixMode': 'Niji Remix模式',
+  'pages.account.remixModeEnabled': '{botType} Remix模式已启用',
+  'pages.account.remixModeDisabled': '{botType} Remix模式已禁用',
+  'pages.account.remixModeToggleError': '切换Remix模式失败，请稍后重试',
 };

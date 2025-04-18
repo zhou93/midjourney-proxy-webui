@@ -1,4 +1,4 @@
-import { accountAction, accountChangeVersion } from '@/services/mj/api';
+import { accountAction, accountChangeVersion, toggleRemixMode } from '@/services/mj/api';
 import { useIntl } from '@umijs/max';
 import { Button, Card, Descriptions, notification, Select, Space, Tag, Tooltip } from 'antd';
 import moment from 'moment';
@@ -18,6 +18,8 @@ const MoreContent: React.FC<MoreContentProps> = ({ record, onSuccess }) => {
   const [nijiButtons, setNijiButtons] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(false);
   const [loadingButton, setLoadingButton] = useState('');
+  const [mjRemixLoading, setMjRemixLoading] = useState(false);
+  const [nijiRemixLoading, setNijiRemixLoading] = useState(false);
   const intl = useIntl();
 
   useEffect(() => {
@@ -123,6 +125,37 @@ const MoreContent: React.FC<MoreContentProps> = ({ record, onSuccess }) => {
     }
   };
 
+  const handleToggleRemix = async (botType: string, enable: boolean) => {
+    try {
+      const loadingState = botType === 'MID_JOURNEY' ? setMjRemixLoading : setNijiRemixLoading;
+      loadingState(true);
+      const res = await toggleRemixMode(record.id, enable, botType);
+      loadingState(false);
+      
+      if (res.success) {
+        api.success({
+          message: 'success',
+          description: intl.formatMessage({ 
+            id: enable ? 'pages.account.remixModeEnabled' : 'pages.account.remixModeDisabled' 
+          }, { botType: botType === 'MID_JOURNEY' ? 'MJ' : 'Niji' }),
+        });
+        onSuccess();
+      } else {
+        api.error({
+          message: 'error',
+          description: res.message,
+        });
+      }
+    } catch (error) {
+      const loadingState = botType === 'MID_JOURNEY' ? setMjRemixLoading : setNijiRemixLoading;
+      loadingState(false);
+      api.error({
+        message: 'error',
+        description: intl.formatMessage({ id: 'pages.account.remixModeToggleError' }),
+      });
+    }
+  };
+
   return (
     <>
       {contextHolder}
@@ -176,6 +209,38 @@ const MoreContent: React.FC<MoreContentProps> = ({ record, onSuccess }) => {
               intl.formatMessage({ id: 'pages.enable' }),
               intl.formatMessage({ id: 'pages.disable' }),
             )}
+          </Descriptions.Item>
+          <Descriptions.Item label={intl.formatMessage({ id: 'pages.account.mjRemixMode' })}>
+            {getStatusTag(
+              record.mjRemixOn,
+              intl.formatMessage({ id: 'pages.enable' }),
+              intl.formatMessage({ id: 'pages.disable' }),
+            )}
+            <Button 
+              type="primary" 
+              size="small" 
+              loading={mjRemixLoading}
+              style={{ marginLeft: '8px' }}
+              onClick={() => handleToggleRemix('MID_JOURNEY', !record.mjRemixOn)}
+            >
+              {record.mjRemixOn ? intl.formatMessage({ id: 'pages.disable' }) : intl.formatMessage({ id: 'pages.enable' })}
+            </Button>
+          </Descriptions.Item>
+          <Descriptions.Item label={intl.formatMessage({ id: 'pages.account.nijiRemixMode' })}>
+            {getStatusTag(
+              record.nijiRemixOn,
+              intl.formatMessage({ id: 'pages.enable' }),
+              intl.formatMessage({ id: 'pages.disable' }),
+            )}
+            <Button 
+              type="primary" 
+              size="small" 
+              loading={nijiRemixLoading}
+              style={{ marginLeft: '8px' }}
+              onClick={() => handleToggleRemix('NIJI_JOURNEY', !record.nijiRemixOn)}
+            >
+              {record.nijiRemixOn ? intl.formatMessage({ id: 'pages.disable' }) : intl.formatMessage({ id: 'pages.enable' })}
+            </Button>
           </Descriptions.Item>
           <Descriptions.Item label={intl.formatMessage({ id: 'pages.account.mjMode' })}>
             {record['displays']['mode']}
